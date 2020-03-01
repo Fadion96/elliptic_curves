@@ -15,9 +15,9 @@ def modinv(b, n):
 def step(A, alpha, beta, g, y, p, ord_p):
     if A % 3 == 0:
         return (A * A) % p, (2 * alpha) % ord_p, (2 * beta) % ord_p
-    elif A % 3 == 2:
-        return (A * y) % p, alpha, (beta + 1) % ord_p
     elif A % 3 == 1:
+        return (A * y) % p, alpha, (beta + 1) % ord_p
+    elif A % 3 == 2:
         return (g * A) % p, (alpha + 1) % ord_p, beta
 
 def pollard_rho(g, y, p, ord_p):
