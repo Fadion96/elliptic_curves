@@ -11,7 +11,6 @@ def step(A, alpha, beta, g, y, F_ord_p):
         return (g * A), (alpha + F_ord_p(1)), beta
 
 def pollard_rho(g, y, F_p, F_ord_p):
-
     A = F_p(1)
     B = F_p(1)
     alpha_A, beta_A = F_ord_p(0), F_ord_p(0)
@@ -19,21 +18,17 @@ def pollard_rho(g, y, F_p, F_ord_p):
     while True:
         A, alpha_A, beta_A = step(A, alpha_A, beta_A, g, y, F_ord_p)
         B, alpha_B, beta_B = step(B, alpha_B, beta_B, g, y, F_ord_p)
-        B, alpha_B, beta_B = step(B, alpha_B, beta_B,g, y, F_ord_p)
+        B, alpha_B, beta_B = step(B, alpha_B, beta_B, g, y, F_ord_p)
         if A == B:
             x = (alpha_B - alpha_A) / (beta_A - beta_B)
-            yield x 
+            return x 
         
 
 for i in range(50):
-    print(i)
     safeprime = gensafeprime.generate(30)
     F_p = F(safeprime)
     F_ord_p = F((safeprime-1)//2)
-    y = random.randint(2, safeprime - 1)
-
-    xx = pollard_rho(F_p(2), F_p(y), F_p, F_ord_p)
-
-    for x in xx:
-        if pow(2, x.int, safeprime) == y:
-            break
+    y = random.randint(2, safeprime - 1) ** 2
+    x = pollard_rho(F_p(4), F_p(y), F_p, F_ord_p)
+    print(i , F_p(pow(4, x.int, safeprime)) == F_p(y))
+    
