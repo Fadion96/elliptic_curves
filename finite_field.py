@@ -39,6 +39,9 @@ def F(p):
         def __mul__(self, b):
             return F(self.int * b.int)
 
+        def __neg__(self):
+            return F(p - self.int)
+
         def __truediv__(self, b):
             return self*F(pow(b.int, p-2, p))
 
