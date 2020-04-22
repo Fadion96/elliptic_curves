@@ -2,6 +2,8 @@ from finite_field import F
 from affine_point import AffinePoint
 import random
 
+from projective_point import ProjectivePoint
+
 
 def step(A, alpha, beta, g, y, F_ord_p):
     if A.is_zero() or A.x.int % 3 == 1:
@@ -10,6 +12,7 @@ def step(A, alpha, beta, g, y, F_ord_p):
         return (A + A), (F_ord_p(2) * alpha), (F_ord_p(2) * beta)
     elif A.x.int % 3 == 2:
         return (g + A), (alpha + F_ord_p(1)), beta
+
 
 def pollard_rho(g, y, F_ord_p):
     A = g
@@ -30,16 +33,30 @@ mod = 62071
 x = 2928
 y = 42354
 ord_ec = 62039
+params = {
+    "basePoint": [2928, 42354, 1],
+    "invariants": [40798, 14047],
+    "fieldOrder": 62071,
+    "curveOrder": 62039}
 
+# params = {
+#     "basePoint": [47046254219, 359396430302, 1],
+#     "invariants": [240819400582, 409300281403],
+#     "fieldOrder": 793404432059,
+#     "curveOrder": 793402993489}
 
-F_ord_ec = F(ord_ec)
+F_ord_ec = F(params["curveOrder"])
 
-EC = AffinePoint(a, b, mod)
+EC = AffinePoint(*params['invariants'], params['fieldOrder'])
+PP = ProjectivePoint(*params['invariants'], params['fieldOrder'])
 
-P = EC(x, y)
+P = EC(*params["basePoint"][:-1])
+P1 = PP(*params["basePoint"])
+
 s = random.randint(2, ord_ec - 1)
 Q = s * P
+Q1 = s * P1
 print(s)
-print(Q)
-x = pollard_rho(P, Q, F_ord_ec)
+# x = pollard_rho(P, Q, F_ord_ec)
+x = pollard_rho(P1, Q1, F_ord_ec)
 print(x)

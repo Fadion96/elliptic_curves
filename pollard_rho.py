@@ -31,4 +31,4 @@ for i in range(50):
     y = random.randint(2, safeprime - 1) ** 2
     x = pollard_rho(F_p(4), F_p(y), F_p, F_ord_p)
     print(i , F_p(pow(4, x.int, safeprime)) == F_p(y))
-    
+

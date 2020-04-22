@@ -1,6 +1,10 @@
 from finite_field import F
 
+
+
 def AffinePoint(a, b, mod):
+    from projective_point import ProjectivePoint
+
     class AffinePoint:
         def __init__(self, x, y):
             self.field = F(mod)
@@ -73,5 +77,11 @@ def AffinePoint(a, b, mod):
                 return self.is_zero() and other.is_zero()
             else:
                 return (self.x, self.y) == (other.x, other.y)
+
+        def to_projective_point(self):
+            if self.is_zero():
+                return ProjectivePoint(a, b, mod)(None, None, None)
+            else:
+                return ProjectivePoint(a, b, mod)(self.x, self.y, self.field(1))
 
     return AffinePoint

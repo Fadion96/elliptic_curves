@@ -1,19 +1,3 @@
-# def egcd(a, b):
-#     lastremainder, remainder = abs(a), abs(b)
-#     x, lastx, y, lasty = 0, 1, 1, 0
-#     while remainder:
-#         lastremainder, (quotient, remainder) = remainder, divmod(lastremainder, remainder)
-#         x, lastx = lastx - quotient*x, x
-#         y, lasty = lasty - quotient*y, y
-#     return lastremainder, lastx * (-1 if a < 0 else 1), lasty * (-1 if b < 0 else 1)
-
-# def modinv(b, n):
-# 	g, x, _ = egcd(b, n)
-# 	if g == 1:
-# 		return x % n
-
-
-
 def F(p):
     class F:
         def __init__(self, x):
