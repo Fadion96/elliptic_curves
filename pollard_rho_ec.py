@@ -1,3 +1,8 @@
+import argparse
+from datetime import datetime
+import json
+import os
+
 from finite_field import F
 from affine_point import AffinePoint
 import random
@@ -27,36 +32,43 @@ def pollard_rho(g, y, F_ord_p):
             x = (alpha_B - alpha_A) / (beta_A - beta_B)
             return x 
 
-a = 40798
-b = 14047
-mod = 62071
-x = 2928
-y = 42354
-ord_ec = 62039
-params = {
-    "basePoint": [2928, 42354, 1],
-    "invariants": [40798, 14047],
-    "fieldOrder": 62071,
-    "curveOrder": 62039}
 
-# params = {
-#     "basePoint": [47046254219, 359396430302, 1],
-#     "invariants": [240819400582, 409300281403],
-#     "fieldOrder": 793404432059,
-#     "curveOrder": 793402993489}
+parser = argparse.ArgumentParser()
+parser.add_argument('bit_length')
+parser.add_argument('-p', dest='projective', const=True, default=False, nargs='?', help='Projective point')
+parser.add_argument('-f', dest='file', const=True, default=False, nargs='?', help='file')
+args = parser.parse_args()
+
+# a = 40798
+# b = 14047
+# mod = 62071
+# x = 2928
+# y = 42354
+# ord_ec = 62039
+
+if not args.file:
+    os.system(f'sage ec-prime-order.sage {args.bit_length}')
+
+with open(f'curve_params_{args.bit_length}.json', "r") as f:
+    params = json.load(f)
+print(params)
 
 F_ord_ec = F(params["curveOrder"])
-
-EC = AffinePoint(*params['invariants'], params['fieldOrder'])
-PP = ProjectivePoint(*params['invariants'], params['fieldOrder'])
-
-P = EC(*params["basePoint"][:-1])
-P1 = PP(*params["basePoint"])
-
-s = random.randint(2, ord_ec - 1)
-Q = s * P
-Q1 = s * P1
+s = random.randint(2, params["curveOrder"] - 1)
 print(s)
-# x = pollard_rho(P, Q, F_ord_ec)
-x = pollard_rho(P1, Q1, F_ord_ec)
+if args.projective:
+    PP = ProjectivePoint(*params['invariants'], params['fieldOrder'])
+    P1 = PP(*params["basePoint"])
+    Q1 = s * P1
+    start = datetime.now()
+    x = pollard_rho(P1, Q1, F_ord_ec)
+else:
+    EC = AffinePoint(*params['invariants'], params['fieldOrder'])
+    P = EC(*params["basePoint"][:-1])
+    Q = s * P
+    start = datetime.now()
+    x = pollard_rho(P, Q, F_ord_ec)
+
+print(datetime.now() - start)
+assert s == x.int
 print(x)
