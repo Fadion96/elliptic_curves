@@ -1,9 +1,11 @@
 #include <iostream>
 #include "affine_point.cpp"
+#include <chrono>
 #include "projective_point.cpp"
-#include <ctime> 
 #include "json/json.h"
 #include <fstream>
+#include <iomanip>
+#include <cassert>
 
 using namespace std;
 
@@ -11,10 +13,18 @@ mpz_t modulo;
 mpz_t a;
 mpz_t b;
 mpz_t curveOrder;
+gmp_randclass r(gmp_randinit_default);
 
 typedef AffinePoint<a, b, modulo> Point;
 typedef ProjectivePoint<a, b, modulo> PPoint;
 typedef Field<curveOrder> CurveField;
+
+unsigned long long int getSeed() {
+    unsigned long long int seed = 0;
+    ifstream urandom("/dev/urandom", ios::in|ios::binary);
+    urandom.read(reinterpret_cast<char*>(&seed), sizeof(seed));
+    return seed;
+}
 
 void init(mpz_class a_v, mpz_class b_v, mpz_class mod, mpz_class curve) {
    mpz_init_set(modulo, mod.get_mpz_t());
@@ -141,16 +151,27 @@ int main(int argc, char const *argv[]) {
 
     init(a, b, fieldOrder, curveOrder);
     Point P = Point(x, y);
-    PPoint PP = PPoint(x, y, z);
-//    cout << P << endl;
-    cout << PP << endl;
-//    Point Q = P * mpz_class(4422);
-    PPoint Q = PP * mpz_class("4422");
+    PPoint PP = ProjectivePoint(x, y, z);
+    cout << P << endl;
+    gmp_randclass r(gmp_randinit_default);
+    r.seed(getSeed());
+    mpz_class scalar = r.get_z_range(curveOrder);
+    cout << scalar << endl;
+    Point Q = P * scalar;
+    PPoint QQ = PP * scalar;
     cout << Q << endl;
-    time_t now = time(0);
+    auto start = chrono::system_clock::now();
 //    CurveField ans = pollard_rho(P,Q);
-    CurveField ans = pollard_rho1(PP,Q);
-    time_t end = time(0);
-    cout <<difftime(end, now)<<endl;
-    cout<<ans.getValue()<<endl;
+    CurveField ans = pollard_rho1(PP,QQ);
+    auto end = std::chrono::system_clock::now();
+    auto t = chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    cout.fill('0');
+    cout << "Answer: " <<  ans.getValue() << endl;
+    assert (CurveField(scalar) == ans);
+    cout << "Time: "
+        << setw(2) << t / (60 * 60 * 1000) << ":"
+        << setw(2) << (t / ( 60 * 1000)) % 60 << ":"
+        << setw(2) << (t / 1000) % 60 << "."
+        << t % 1000
+        << endl;
 }
