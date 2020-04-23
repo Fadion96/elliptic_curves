@@ -1,6 +1,8 @@
 #include <iostream>
 #include "affine_point.cpp"
 #include <ctime> 
+#include "json/json.h"
+#include <fstream>
 
 using namespace std;
 
@@ -70,19 +72,30 @@ CurveField pollard_rho(Point gen, Point y){
     }
 }
 
+int main(int argc, char const *argv[]) {    
+    if (argc < 2){
+        cerr << "Usage: ./ex <curve_params.json>" << endl;
+        return 0;
+    }
+    Json::Value params;
+    ifstream paramsFile(argv[1]);
+    paramsFile >> params;
+    cout << params << endl;
+    mpz_class a = mpz_class(params["invariants"][0].asString());
+    mpz_class b = mpz_class(params["invariants"][1].asString());
+    mpz_class fieldOrder = mpz_class(params["fieldOrder"].asString());
+    mpz_class curveOrder = mpz_class(params["curveOrder"].asString());
+    mpz_class x = mpz_class(params["basePoint"][0].asString());
+    mpz_class y = mpz_class(params["basePoint"][1].asString());
 
-int main(int argc, char const *argv[]) {
-    init(755166058714695501, 491852097657725974, 757211378386428139, 757211378543584379);
-    Point test = Point(mpz_class(90884636720006406), mpz_class(182740157931376758));
-    // init(125054026421, 435854508262, 673996353473, 673995624277);
-    // Point test = Point(mpz_class(388974051914), mpz_class(660883941535));
-    test.print();
-
-    Point jd = test * mpz_class(4422);
-    jd.print();
+    init(a, b, fieldOrder, curveOrder);
+    Point P = Point(x, y);
+    P.print();
+    Point Q = P * mpz_class(4422);
+    Q.print();
     time_t now = time(0);
-    CurveField ans = pollard_rho(test,jd);
+    CurveField ans = pollard_rho(P,Q);
     time_t end = time(0);
-    cout << difftime(end, now)<<endl;
+    cout <<difftime(end, now)<<endl;
     cout<<ans.getValue()<<endl;
 }
