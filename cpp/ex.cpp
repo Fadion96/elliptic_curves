@@ -11,10 +11,8 @@ mpz_t a;
 mpz_t b;
 mpz_t curveOrder;
 
-
 typedef AffinePoint<a, b, modulo> Point;
 typedef Field<curveOrder> CurveField;
-
 
 void init(mpz_class a_v, mpz_class b_v, mpz_class mod, mpz_class curve) {
    mpz_init_set(modulo, mod.get_mpz_t());
@@ -23,7 +21,7 @@ void init(mpz_class a_v, mpz_class b_v, mpz_class mod, mpz_class curve) {
    mpz_init_set(curveOrder, curve.get_mpz_t());
 }
 
-void step(Point gen, Point y, Point &A, CurveField   &alpha, CurveField &beta){
+void step(Point gen, Point y, Point &A, CurveField  &alpha, CurveField &beta){
     mpz_t tmp;
     mpz_init_set(tmp,A.getX().getValue().get_mpz_t());
     mpz_mod(tmp,tmp,mpz_class(3).get_mpz_t());
@@ -90,9 +88,9 @@ int main(int argc, char const *argv[]) {
 
     init(a, b, fieldOrder, curveOrder);
     Point P = Point(x, y);
-    P.print();
+    cout << P << endl;
     Point Q = P * mpz_class(4422);
-    Q.print();
+    cout << Q << endl;
     time_t now = time(0);
     CurveField ans = pollard_rho(P,Q);
     time_t end = time(0);

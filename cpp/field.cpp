@@ -34,7 +34,7 @@ public:
     }
 
     mpz_class getValue(){
-        return this->value;
+        return value;
     }
 
     Field operator + (Field const &obj) {

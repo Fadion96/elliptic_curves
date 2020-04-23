@@ -100,10 +100,10 @@ public:
              return (x == other.x) && (y == other.y);
          }
     }
-    
-    void print() {
-        std::cout << "(" << x.getValue()<< ", " << y.getValue() <<")"<<std::endl; // actual output done here
- 
+
+    friend std::ostream & operator << (std::ostream &out, AffinePoint &point){
+        out << "(" << point.x.getValue()<< ", " << point.y.getValue() <<")"; 
+        return out;
     }
      
 };
