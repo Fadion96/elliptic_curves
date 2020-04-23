@@ -32,7 +32,7 @@ def generateDomainParameters(bitLength):
 		print(E)
 		print('Order of the curve: {}'.format(curveOrder))
 		print('Basepoint in normalized projective coordinates: {}'.format(basePoint))
-		with open(f'curve_params_{bitLength}', "w") as f:
+		with open(f'curve_params_{bitLength}.json', "w") as f:
 			f.write(json.dumps({
 				'basePoint' :  [int(x) for x in basePoint],
 				'invariants' : [int(a) for a in E.a_invariants()[-_sage_const_2 :]],

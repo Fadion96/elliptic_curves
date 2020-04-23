@@ -6,6 +6,7 @@ def AffinePoint(a, b, mod):
     from projective_point import ProjectivePoint
 
     class AffinePoint:
+        __slots__ = ['field', 'x', 'y']
         def __init__(self, x, y):
             self.field = F(mod)
             if isinstance(x, int):

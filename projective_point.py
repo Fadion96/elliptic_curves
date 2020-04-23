@@ -5,6 +5,7 @@ from affine_point import AffinePoint
 
 def ProjectivePoint(a, b, mod):
     class ProjectivePoint:
+        __slots__ = ['x', 'y', 'z', 'field']
         def __init__(self, x, y, z):
             self.field = F(mod)
             if isinstance(x, int):
@@ -33,12 +34,15 @@ def ProjectivePoint(a, b, mod):
                 return other
             elif other.is_zero():
                 return self
-            t0 = self.y * other.z
-            t1 = other.y * self.z
-            u0 = self.x * other.z
-            u1 = other.x * self.z
-            if u0 == u1:
-                if t0 == t1:
+            sx, ox = self.x.int, other.x.int
+            sy, oy = self.y.int, other.y.int
+            sz, oz = self.z.int, other.z.int
+            t0 = sy * oz
+            t1 = oy * sz
+            u0 = sx * oz
+            u1 = ox * sz
+            if u0 % mod == u1 % mod:
+                if t0 % mod == t1 % mod:
                     return self.double()
                 else:
                     return ProjectivePoint(None, None, None)
@@ -46,27 +50,30 @@ def ProjectivePoint(a, b, mod):
                 t = t0 - t1
                 u = u0 - u1
                 u2 = u * u
-                v = self.z * other.z
+                v = sz * oz
                 w = t * t * v - u2 * (u0 + u1)
                 u3 = u * u2
                 rx = u * w
                 ry = t * (u0 * u2 - w) - t0 * u3
                 rz = u3 * v
-                return ProjectivePoint(rx, ry, rz)
+                return ProjectivePoint(self.field(rx), self.field(ry), self.field(rz))
 
         def double(self):
             if self.is_zero() or self.y == self.field(0):
                 return ProjectivePoint(None, None, None)
             else:
-                two = self.field(2)
-                t = self.x * self.x * self.field(3) + self.field(a) * self.z * self.z
-                u = self.y * self.z * two
-                v = u * self.x * self.y * two
+                two = 2
+                sx = self.x.int
+                sy = self.y.int
+                sz = self.z.int
+                t = sx * sx * 3 + a * sz * sz
+                u = sy * sz * two
+                v = u * sx * sy * two
                 w = t * t - v * two
                 rx = u * w
-                ry = t * (v - w) - u * u * self.y * self.y * two
+                ry = t * (v - w) - u * u * sy * sy * two
                 rz = u * u * u
-                return ProjectivePoint(rx, ry, rz)
+                return ProjectivePoint(self.field(rx), self.field(ry), self.field(rz))
 
         def __neg__(self):
             if self.is_zero():
@@ -99,6 +106,9 @@ def ProjectivePoint(a, b, mod):
 
         def __ne__(self, other):
             return not (self == other)
+
+        def __str__(self):
+            return f'{self.x} {self.y} {self.z}'
 
         def to_affine_point(self):
             if self.is_zero():

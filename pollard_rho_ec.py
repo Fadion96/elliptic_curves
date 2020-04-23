@@ -10,7 +10,7 @@ import random
 from projective_point import ProjectivePoint
 
 
-def step(A, alpha, beta, g, y, F_ord_p):
+def step1(A, alpha, beta, g, y, F_ord_p):
     if A.is_zero() or A.x.int % 3 == 1:
         return (A + y), alpha, (beta + F_ord_p(1))
     elif A.x.int % 3 == 0:
@@ -25,9 +25,9 @@ def pollard_rho(g, y, F_ord_p):
     alpha_A, beta_A = F_ord_p(1), F_ord_p(0)
     alpha_B, beta_B = F_ord_p(1), F_ord_p(0)
     while True:
-        A, alpha_A, beta_A = step(A, alpha_A, beta_A, g, y, F_ord_p)
-        B, alpha_B, beta_B = step(B, alpha_B, beta_B, g, y, F_ord_p)
-        B, alpha_B, beta_B = step(B, alpha_B, beta_B, g, y, F_ord_p)
+        A, alpha_A, beta_A = step1(A, alpha_A, beta_A, g, y, F_ord_p)
+        B, alpha_B, beta_B = step1(B, alpha_B, beta_B, g, y, F_ord_p)
+        B, alpha_B, beta_B = step1(B, alpha_B, beta_B, g, y, F_ord_p)
         if A == B:
             x = (alpha_B - alpha_A) / (beta_A - beta_B)
             return x 
@@ -54,21 +54,24 @@ with open(f'curve_params_{args.bit_length}.json', "r") as f:
 print(params)
 
 F_ord_ec = F(params["curveOrder"])
-s = random.randint(2, params["curveOrder"] - 1)
-print(s)
-if args.projective:
-    PP = ProjectivePoint(*params['invariants'], params['fieldOrder'])
-    P1 = PP(*params["basePoint"])
-    Q1 = s * P1
-    start = datetime.now()
-    x = pollard_rho(P1, Q1, F_ord_ec)
-else:
-    EC = AffinePoint(*params['invariants'], params['fieldOrder'])
-    P = EC(*params["basePoint"][:-1])
-    Q = s * P
-    start = datetime.now()
-    x = pollard_rho(P, Q, F_ord_ec)
+for s in [6]:
+    print(s)
+    if args.projective:
+        print('Projective')
+        PP = ProjectivePoint(*params['invariants'], params['fieldOrder'])
+        P1 = PP(*params["basePoint"])
+        Q1 = s * P1
+        print(P1.x, P1.y, P1.z, Q1.x,Q1.y, Q1.z)
+        start = datetime.now()
+        x = pollard_rho(P1, Q1, F_ord_ec)
+    else:
+        print('Affine')
+        EC = AffinePoint(*params['invariants'], params['fieldOrder'])
+        P = EC(*params["basePoint"][:-1])
+        Q = s * P
+        start = datetime.now()
+        x = pollard_rho(P, Q, F_ord_ec)
 
-print(datetime.now() - start)
-assert s == x.int
-print(x)
+    print(datetime.now() - start)
+    assert s == x.int
+    print(x)

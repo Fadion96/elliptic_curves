@@ -1,5 +1,6 @@
 def F(p):
     class F:
+        __slots__ = ['int']
         def __init__(self, x):
             self.int = x % p
 

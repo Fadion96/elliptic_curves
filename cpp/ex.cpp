@@ -1,5 +1,6 @@
 #include <iostream>
 #include "affine_point.cpp"
+#include "projective_point.cpp"
 #include <ctime> 
 #include "json/json.h"
 #include <fstream>
@@ -12,6 +13,7 @@ mpz_t b;
 mpz_t curveOrder;
 
 typedef AffinePoint<a, b, modulo> Point;
+typedef ProjectivePoint<a, b, modulo> PPoint;
 typedef Field<curveOrder> CurveField;
 
 void init(mpz_class a_v, mpz_class b_v, mpz_class mod, mpz_class curve) {
@@ -22,6 +24,40 @@ void init(mpz_class a_v, mpz_class b_v, mpz_class mod, mpz_class curve) {
 }
 
 void step(Point gen, Point y, Point &A, CurveField  &alpha, CurveField &beta){
+    mpz_t tmp;
+    mpz_init_set(tmp,A.getX().getValue().get_mpz_t());
+    mpz_mod(tmp,tmp,mpz_class(3).get_mpz_t());
+    CurveField one = CurveField(1);
+    switch (mpz_cmp_si(tmp, 1))
+    {
+    case -1:
+        if(A.getY().getValue().get_mpz_t() == 0){
+            A = A + y;
+            alpha = alpha;
+            beta = beta + one;
+        }
+        else{
+            A = A + A;
+            alpha = alpha + alpha;
+            beta = beta + beta;
+        }
+        break;
+    case 0:
+        A = A + y;
+        alpha = alpha;
+        beta = beta + one;
+        break;
+    case 1:
+        A = A + gen;
+        alpha = alpha + one;
+        beta = beta;
+        break;
+    }
+    mpz_clear(tmp);
+}
+
+
+void step1(PPoint gen, PPoint y, PPoint &A, CurveField  &alpha, CurveField &beta){
     mpz_t tmp;
     mpz_init_set(tmp,A.getX().getValue().get_mpz_t());
     mpz_mod(tmp,tmp,mpz_class(3).get_mpz_t());
@@ -70,6 +106,22 @@ CurveField pollard_rho(Point gen, Point y){
     }
 }
 
+CurveField pollard_rho1(PPoint gen, PPoint y){
+    PPoint a = gen;
+    PPoint b = gen;
+    CurveField alpha_a = CurveField(1), alpha_b = CurveField(1);
+    CurveField beta_a = CurveField(0), beta_b = CurveField(0);
+    while(true){
+        step1(gen,y,a,alpha_a, beta_a);
+        step1(gen,y,b,alpha_b, beta_b);
+        step1(gen,y,b,alpha_b, beta_b);
+        if (a==b){
+            CurveField x = (alpha_b - alpha_a) / (beta_a - beta_b);
+            return x;
+        }
+    }
+}
+
 int main(int argc, char const *argv[]) {    
     if (argc < 2){
         cerr << "Usage: ./ex <curve_params.json>" << endl;
@@ -85,14 +137,19 @@ int main(int argc, char const *argv[]) {
     mpz_class curveOrder = mpz_class(params["curveOrder"].asString());
     mpz_class x = mpz_class(params["basePoint"][0].asString());
     mpz_class y = mpz_class(params["basePoint"][1].asString());
+    mpz_class z = mpz_class("1");
 
     init(a, b, fieldOrder, curveOrder);
     Point P = Point(x, y);
-    cout << P << endl;
-    Point Q = P * mpz_class(4422);
+    PPoint PP = PPoint(x, y, z);
+//    cout << P << endl;
+    cout << PP << endl;
+//    Point Q = P * mpz_class(4422);
+    PPoint Q = PP * mpz_class("4422");
     cout << Q << endl;
     time_t now = time(0);
-    CurveField ans = pollard_rho(P,Q);
+//    CurveField ans = pollard_rho(P,Q);
+    CurveField ans = pollard_rho1(PP,Q);
     time_t end = time(0);
     cout <<difftime(end, now)<<endl;
     cout<<ans.getValue()<<endl;

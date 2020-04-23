@@ -1,5 +1,7 @@
 #include "gmpxx.h"
 
+
+
 template<mpz_t mod>
 class Field {
 private:
@@ -76,3 +78,12 @@ public:
     }
 
 };
+//Field operator* (const Field& y, Field& x)
+//{
+//        return Field(y.value * x.value);
+//}
+//
+//Field operator* (Field& y, const Field& x)
+//{
+//        return Field(y.value * x.value);
+//}
