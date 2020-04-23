@@ -19,12 +19,14 @@ public:
         mpz_t tmp;
         mpz_init_set_si(tmp, value);
         mpz_mod(this->value.get_mpz_t(), tmp, mod);
+        mpz_clear(tmp);
     }
 
     Field(long long value){
         mpz_t tmp;
         mpz_init_set_si(tmp, value);
         mpz_mod(this->value.get_mpz_t(), tmp, mod);
+        mpz_clear(tmp);
     }
 
     void getValue(mpz_t ret){
@@ -56,7 +58,9 @@ public:
         mpz_init(tmp);
         mpz_invert(tmp ,obj.value.get_mpz_t(),mod);
         mpz_mul(tmp,value.get_mpz_t(), tmp);
-        return Field(tmp);
+        Field ret = Field(tmp);
+        mpz_clear(tmp);
+        return ret;
     }
 
     Field operator % (Field const &obj) {
@@ -70,4 +74,5 @@ public:
     bool operator != (Field const &rhs) {
         return mpz_cmp(value.get_mpz_t(),rhs.value.get_mpz_t()) != 0;
     }
+
 };
