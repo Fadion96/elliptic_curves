@@ -54,24 +54,24 @@ with open(f'curve_params_{args.bit_length}.json', "r") as f:
 print(params)
 
 F_ord_ec = F(params["curveOrder"])
-for s in [6]:
-    print(s)
-    if args.projective:
-        print('Projective')
-        PP = ProjectivePoint(*params['invariants'], params['fieldOrder'])
-        P1 = PP(*params["basePoint"])
-        Q1 = s * P1
-        print(P1.x, P1.y, P1.z, Q1.x,Q1.y, Q1.z)
-        start = datetime.now()
-        x = pollard_rho(P1, Q1, F_ord_ec)
-    else:
-        print('Affine')
-        EC = AffinePoint(*params['invariants'], params['fieldOrder'])
-        P = EC(*params["basePoint"][:-1])
-        Q = s * P
-        start = datetime.now()
-        x = pollard_rho(P, Q, F_ord_ec)
+s = random.randint(2, params["curveOrder"] - 1)
+# for s in [2137]:
+print(s)
+if args.projective:
+    print('Projective')
+    PP = ProjectivePoint(*params['invariants'], params['fieldOrder'])
+    P1 = PP(*params["basePoint"])
+    Q1 = s * P1
+    start = datetime.now()
+    x = pollard_rho(P1, Q1, F_ord_ec)
+else:
+    print('Affine')
+    EC = AffinePoint(*params['invariants'], params['fieldOrder'])
+    P = EC(*params["basePoint"][:-1])
+    Q = s * P
+    start = datetime.now()
+    x = pollard_rho(P, Q, F_ord_ec)
 
-    print(datetime.now() - start)
-    assert s == x.int
-    print(x)
+print(datetime.now() - start)
+assert s == x.int
+print(x)

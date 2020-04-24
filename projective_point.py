@@ -33,40 +33,40 @@ def ProjectivePoint(a, b, mod):
                 return other
             elif other.is_zero():
                 return self
-            t0 = self.y * other.z  # s_1 = y_1z_2
-            t1 = other.y * self.z  # s_2 = y_2z_1
-            u0 = self.x * other.z  # u_1 = x_1z_2
-            u1 = other.x * self.z  # u_2 = x_2z_1
-            if u0 == u1:  # u
-                if t0 == t1:  # s
+            s_1 = self.y * other.z  # s_1 = y_1z_2
+            s_2 = other.y * self.z  # s_2 = y_2z_1
+            u_1 = self.x * other.z  # u_1 = x_1z_2
+            u_2 = other.x * self.z  # u_2 = x_2z_1
+            if u_1 == u_2:  # u
+                if s_1 == s_2:  # s
                     return self.double()
                 else:
                     return ProjectivePoint(None, None, None)
             else:
-                v = self.z * other.z  # w
-                t = t0 - t1  # r
-                u = u0 - u1  # p
-                u2 = u * u   # P^2
-                w = t * t * v - u2 * (u0 + u1) #r^2 * w - (u_1 + u_2) * p2
-                u3 = u * u2  # p^3
-                rx = u * w # p* pierdolnik
-                ry = t * (self.field(2)*v)
-                # ry = t * (u0 * u2 - w) - t0 * u3
-                rz = u3 * v  # p^3 * w
-                return ProjectivePoint(rx, ry, rz)
+                w = self.z * other.z  # w = z_1z_2
+                r = s_2 - s_1  # r = s_2 - s_1
+                p = u_2 - u_1   
+                p_sqr = p * p
+                rrw = r * r * w
+                p_sqr_u1_u2 = p_sqr * (u_1 + u_2)
+                p_cube = p * p_sqr
+                rx = p * (rrw - p_sqr_u1_u2)
+                ry = r * (self.field(-2)*rrw + self.field(3) * p_sqr_u1_u2) - p_cube * (s_1 + s_2)
+                rz = p_cube * w
+                return ProjectivePoint(self.field(2)*rx, ry, self.field(2)*rz)
 
         def double(self):
             if self.is_zero() or self.y == self.field(0):
                 return ProjectivePoint(None, None, None)
             else:
                 two = self.field(2)
-                t = self.x * self.x * self.field(3) + self.field(a) * self.z * self.z
-                u = self.y * self.z * two
-                v = u * self.x * self.y * two
-                w = t * t - v * two
-                rx = u * w
-                ry = t * (v - w) - u * u * self.y * self.y * two
-                rz = u * u * u
+                w = self.x * self.x * self.field(3) + self.field(a) * self.z * self.z
+                s = self.y * self.z * two
+                b = s * self.x * self.y * two
+                h = w * w - b * two
+                rx = h * s  
+                ry = w * (b - h) - s * s * self.y * self.y * two
+                rz = s * s * s
                 return ProjectivePoint(rx, ry, rz)
 
         def __neg__(self):

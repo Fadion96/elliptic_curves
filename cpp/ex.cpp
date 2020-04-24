@@ -151,17 +151,18 @@ int main(int argc, char const *argv[]) {
 
     init(a, b, fieldOrder, curveOrder);
     Point P = Point(x, y);
-    PPoint PP = ProjectivePoint(x, y, z);
+    PPoint PP = PPoint(x, y, z);
     cout << P << endl;
     gmp_randclass r(gmp_randinit_default);
     r.seed(getSeed());
     mpz_class scalar = r.get_z_range(curveOrder);
     cout << scalar << endl;
-    Point Q = P * scalar;
+    // Point Q = P * scalar;
     PPoint QQ = PP * scalar;
-    cout << Q << endl;
+    // cout << Q << endl;
+    cout << QQ << endl;
     auto start = chrono::system_clock::now();
-//    CurveField ans = pollard_rho(P,Q);
+    // CurveField ans = pollard_rho(P,Q);
     CurveField ans = pollard_rho1(PP,QQ);
     auto end = std::chrono::system_clock::now();
     auto t = chrono::duration_cast<std::chrono::milliseconds>(end - start).count();

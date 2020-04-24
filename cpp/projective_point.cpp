@@ -1,4 +1,4 @@
-//#include "field.cpp"
+// #include "field.cpp"
 #include <iostream>
 
 
@@ -40,7 +40,7 @@ public:
     }
 
     bool is_zero(){
-        return x == Number(0);
+        return z == Number(0);
     }
 
     Number getX(){
@@ -56,18 +56,18 @@ public:
     }
 
     ProjectivePoint dbl() {
-        if (this->is_zero() || this->y == Number(0)){
+        if (this->is_zero() || this->y == Number(1)){
             return ProjectivePoint(0, 0, 0);
         }
         else{
             Number two = Number(2);
-            Number t = this->x * this->x * Number(3) + Number(a) * this->z * this->z;
-            Number u = this->y * this->z * two;
-            Number v = u * this->x * this->y * two;
-            Number w = t * t - v * two;
-            Number rx = u * w;
-            Number ry = t * (v - w) - u * u * this->y * this->y * two;
-            Number rz = u * u * u;
+            Number w = x * x * Number(3) + Number(a) * z * z;
+            Number s = y * z * two;
+            Number B = s * x * y * two;
+            Number h = w * w - B * two;
+            Number rx = h * s ;
+            Number ry = w * (B - h) - s * s * y * y * two;
+            Number rz = s * s * s;
             return ProjectivePoint(rx, ry, rz);
         }
     }
@@ -77,31 +77,32 @@ public:
             return other;
         }
         else {
-            if (Number(other.x) == Number(0)) {
+            if (Number(other.z) == Number(0)) {
                 return *this;
             }
         }
-        Number t0 = this->y * other.z;
-        Number t1 = this->z * other.y;
-        Number u0 = this->x * other.z;
-        Number u1 = this->z * other.x;
-        if (u0 == u1) {
-            if (t0 == t1) {
+        Number s_1 = this->y * other.z;
+        Number s_2 = this->z * other.y;
+        Number u_1 = this->x * other.z;
+        Number u_2 = this->z * other.x;
+        if (u_1 == u_2) {
+            if (s_1 == s_2) {
                 return this->dbl();
             } else {
-                return ProjectivePoint(0, 0, 0);
+                return ProjectivePoint(0, 1, 0);
             }
         } else {
-            Number t = t0 - t1;
-            Number u = u0 - u1;
-            Number u2 = u * u;
-            Number v = this->z * other.z;
-            Number w = t * t * v - u2 * (u0 + u1);
-            Number u3 = u * u2;
-            Number rx = u * w;
-            Number ry = t * (u0 * u2 - w) - t0 * u3;
-            Number rz = u3 * v;
-            return ProjectivePoint(rx, ry, rz);
+            Number w = z * other.z;
+            Number r = s_2 - s_1; 
+            Number p = u_2 - u_1;   
+            Number p_sqr = p * p;
+            Number rrw = r * r * w;
+            Number p_sqr_u1_u2 = p_sqr * (u_1 + u_2);
+            Number p_cube = p * p_sqr;
+            Number rx = p * (rrw - p_sqr_u1_u2);
+            Number ry = r * (Number(-2)*rrw + Number(3) * p_sqr_u1_u2) - p_cube * (s_1 + s_2);
+            Number rz = p_cube * w;
+            return ProjectivePoint(Number(2) * rx, ry, Number(2) * rz);
         }
     }
 
