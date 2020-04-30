@@ -1,7 +1,5 @@
 from finite_field import F
 
-from affine_point import AffinePoint
-
 
 def ProjectivePoint(a, b, mod):
     class ProjectivePoint:
@@ -21,31 +19,26 @@ def ProjectivePoint(a, b, mod):
                 self.z = z
 
         def is_zero(self):
-            return self.x is None
-
-        def is_on_curve(self):
-            return not self.is_zero() and \
-                   self.y * self.y * self.z == \
-                   self.x * self.x * self.x + self.field(a) * self.x * self.z * self.z + self.field(b) * self.z * self.z * self.z
+            return self.z is None
 
         def __add__(self, other):
             if self.is_zero():
                 return other
             elif other.is_zero():
                 return self
-            s_1 = self.y * other.z  # s_1 = y_1z_2
-            s_2 = other.y * self.z  # s_2 = y_2z_1
-            u_1 = self.x * other.z  # u_1 = x_1z_2
-            u_2 = other.x * self.z  # u_2 = x_2z_1
-            if u_1 == u_2:  # u
-                if s_1 == s_2:  # s
+            s_1 = self.y * other.z
+            s_2 = other.y * self.z
+            u_1 = self.x * other.z
+            u_2 = other.x * self.z
+            if u_1 == u_2:
+                if s_1 == s_2:
                     return self.double()
                 else:
-                    return ProjectivePoint(None, None, None)
+                    return ProjectivePoint(None, 1, None)
             else:
-                w = self.z * other.z  # w = z_1z_2
-                r = s_2 - s_1  # r = s_2 - s_1
-                p = u_2 - u_1   
+                w = self.z * other.z
+                r = s_2 - s_1
+                p = u_2 - u_1
                 p_sqr = p * p
                 rrw = r * r * w
                 p_sqr_u1_u2 = p_sqr * (u_1 + u_2)
@@ -57,7 +50,7 @@ def ProjectivePoint(a, b, mod):
 
         def double(self):
             if self.is_zero() or self.y == self.field(0):
-                return ProjectivePoint(None, None, None)
+                return ProjectivePoint(None, 1, None)
             else:
                 two = self.field(2)
                 w = self.x * self.x * self.field(3) + self.field(a) * self.z * self.z
@@ -81,7 +74,7 @@ def ProjectivePoint(a, b, mod):
         def __mul__(self, n):
             if n < 0:
                 return -self * -n
-            result = ProjectivePoint(None, None, None)
+            result = ProjectivePoint(None, 1, None)
             temp = self
             while n != 0:
                 if n & 1 != 0:
@@ -100,11 +93,5 @@ def ProjectivePoint(a, b, mod):
 
         def __ne__(self, other):
             return not (self == other)
-
-        def to_affine_point(self):
-            if self.is_zero():
-                return AffinePoint(a, b, mod)(None, None)
-            else:
-                return AffinePoint(a, b, mod)(self.x / self.z, self.y / self.z)
 
     return ProjectivePoint

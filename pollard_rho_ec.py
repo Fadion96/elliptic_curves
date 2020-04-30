@@ -55,7 +55,6 @@ print(params)
 
 F_ord_ec = F(params["curveOrder"])
 s = random.randint(2, params["curveOrder"] - 1)
-# for s in [2137]:
 print(s)
 if args.projective:
     print('Projective')
