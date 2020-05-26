@@ -67,6 +67,7 @@ def AffinePoint(a, b, mod):
                 return f"({self.x}, {self.y})"
 
         __rmul__ = __mul__
+        __repr__ = __str__
 
         def __eq__(self, other):
             if self.is_zero() or other.is_zero():

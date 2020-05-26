@@ -94,4 +94,18 @@ def ProjectivePoint(a, b, mod):
         def __ne__(self, other):
             return not (self == other)
 
+        def __str__(self):
+            if self.is_zero():
+                return "(Zero)"
+            else:
+                return f"({self.x}, {self.y}, {self.z})"
+
+        __repr__ = __str__
+
+        def norm(self):
+            if self.is_zero():
+                return self
+            else:
+                return ProjectivePoint(self.x / self.z, self.y / self.z, self.field(1))
+
     return ProjectivePoint
