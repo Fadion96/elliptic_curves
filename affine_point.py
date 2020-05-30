@@ -75,4 +75,8 @@ def AffinePoint(a, b, mod):
             else:
                 return (self.x, self.y) == (other.x, other.y)
 
+        @staticmethod
+        def get_inf():
+            return AffinePoint(None, None)
+
     return AffinePoint

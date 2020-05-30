@@ -108,4 +108,8 @@ def ProjectivePoint(a, b, mod):
             else:
                 return ProjectivePoint(self.x / self.z, self.y / self.z, self.field(1))
 
+        @staticmethod
+        def get_inf():
+            return ProjectivePoint(None, 1, None)
+
     return ProjectivePoint
