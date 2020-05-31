@@ -39,7 +39,7 @@ def find_opt(l,storage):
 
 def precomp(P, v, h, a):
     G = []
-    G_0 = [None]
+    G_0 = [EC.get_inf()]
     for u in range(1, 2**h):
         u_bits = [0] * (h - u.bit_length()) + [int(x) for x in bin(u)[2:]]
         u_bits.reverse()
@@ -47,13 +47,13 @@ def precomp(P, v, h, a):
         G_0.append(R)
     G.append(G_0)
     for j in range(1, v_last):
-        g_j = [None]
+        g_j = [EC.get_inf()]
         for u in range(1, 2**h):
             R = G_0[u] * (2**(j*b))
             g_j.append(R)
         G.append(g_j)
     for j in range(0, v - v_last):
-        g_j = [None]
+        g_j = [EC.get_inf()]
         for u in range(1, 2**(h-1)):
             R = G_0[u] * (2**((v_last+j)*b))
             g_j.append(R)
@@ -140,7 +140,7 @@ if __name__ == "__main__":
 
     G = precomp(P, v, h, a)
     print("Used storage:", sum([len(g) for g in G]) - v)
-    for _ in range(10):
+    for _ in range(5):
         print("================")
         s = random.randint(2**(bit_length-1), 2**(bit_length) -1)
         # s = random.randint(2**(bit_length-1), params["curveOrder"] - 1)
